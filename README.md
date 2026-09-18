@@ -152,7 +152,7 @@ El proyecto está preparado para entornos de producción mediante la integració
 ## 📊 Pruebas de Estrés y Rendimiento (JMeter)
 
 El sistema ha sido sometido a pruebas de carga utilizando **Apache JMeter**, simulando el peor escenario de e-commerce: un ataque masivo de compras sobre un inventario limitado (100 usuarios concurrentes para 90 productos).
-Localiza el archivo `TiendaStressLuchoTest.jmx` en la carpeta `/docs`.
+Localiza el archivo `CartManagementAPI-StressTest.jmx` en la carpeta `/docs`.
 
 **Resultados Oficiales de la Prueba:**
 
@@ -168,8 +168,8 @@ Localiza el archivo `TiendaStressLuchoTest.jmx` en la carpeta `/docs`.
 **1. Clonar el repositorio:**
 
 ```bash
-git clone [https://github.com/tu-usuario/tienda-ecommerce.git](https://github.com/tu-usuario/tienda-ecommerce.git)
-cd tienda-ecommerce
+git clone [https://github.com/LuisMaximilianoLizarraga/tienda-online.git](https://github.com/LuisMaximilianoLizarraga/tienda-online.git)
+cd tienda-online
 
 ```
 
