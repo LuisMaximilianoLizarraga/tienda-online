@@ -1,4 +1,6 @@
-Aquí tienes el archivo `README.md` completo y mejorado, incorporando el Diagrama de Entidad-Relación (DER) para que cualquier desarrollador que entre al repositorio entienda rápidamente tanto la arquitectura de concurrencia como el modelo de datos.
+Aquí tienes el **`README.md`** final y pulido.
+
+He revisado las clases clave que proporcionaste e incluí menciones a los detalles arquitectónicos avanzados que estás utilizando (como `@Retryable` para bloqueos optimistas, propagación `REQUIRES_NEW` para aislar los errores, y la caché de Caffeine). Además, agregué las secciones específicas para **Swagger** y **Postman**.
 
 ```markdown
 # 🛒 Tienda E-Commerce Backend (High Concurrency Ready)
@@ -9,21 +11,25 @@ API REST robusta construida con **Spring Boot**, diseñada específicamente para
 
 ## 🚀 Características Principales
 
-* **Autenticación Stateless:** Seguridad mediante tokens JWT, procesando *Claims* en memoria para liberar el pool de conexiones de la base de datos.
-* **Procesamiento de Órdenes Asíncrono:** Uso de trabajadores en segundo plano (`@Async`) para aislar la capa HTTP del procesamiento de la orden, mejorando el *throughput* del servidor.
+* **Autenticación Stateless:** Seguridad mediante tokens JWT, procesando *Claims* (como el `userId`) en memoria para liberar el pool de conexiones de la base de datos.
+* **Procesamiento de Órdenes Asíncrono:** Uso de trabajadores en segundo plano (`@Async`) con un *Thread Pool* dedicado (Core: 10, Max: 50, Cola: 100) para aislar la capa HTTP de las transacciones pesadas.
 * **Prevención de Sobreventa (Overselling):** Resta atómica de inventario directamente en el motor SQL (*Compare-And-Swap*) bajo el principio *Fail-Fast*.
-* **Control de Concurrencia de Usuarios:** Bloqueo Optimista (`@Version` de JPA) para prevenir que modificaciones simultáneas en múltiples pestañas del navegador corrompan el estado del carrito.
-* **Transacciones de Dominio Limpias:** Manejo explícito de excepciones de negocio (`noRollbackFor = OutOfStockException.class`) para registrar auditorías exactas sin provocar *rollbacks* destructivos en la base de datos.
+* **Resiliencia ante Concurrencia (Optimistic Locking & Retry):** Uso de `@Version` de JPA para detectar colisiones en el carrito, respaldado por una política `@Retryable` que reintenta la operación automáticamente hasta 3 veces antes de fallar.
+* **Transacciones de Dominio y Aislamiento:** Manejo explícito de excepciones de negocio (`noRollbackFor = OutOfStockException.class`) y uso de propagación `REQUIRES_NEW` para garantizar que los estados `CANCELLED` o `FAILED` se guarden siempre, asegurando el rastro de auditoría.
+* **Rendimiento Extremo con Virtual Threads:** Hilos virtuales de Project Loom habilitados a nivel de framework para maximizar la capacidad de peticiones concurrentes con un impacto mínimo en memoria.
+* **Estrategia de Caché Local:** Integración de **Caffeine Cache** (`activeDiscounts`) para mantener los descuentos en memoria (con expiración de 10 minutos), evitando consultas repetitivas a la base de datos durante el *checkout*.
 
 ---
 
 ## 🛠️ Stack Tecnológico
 
-* **Framework:** Java / Spring Boot 3.x
+* **Framework:** Java / Spring Boot 3.x (Virtual Threads Enabled)
 * **Seguridad:** Spring Security + JWT
 * **Persistencia:** Spring Data JPA / Hibernate
 * **Base de Datos:** H2 (Memoria) / PostgreSQL (Producción)
+* **Caché:** Caffeine
 * **Connection Pooling:** HikariCP (Optimizado para concurrencia)
+* **Documentación y Observabilidad:** Springdoc OpenAPI (Swagger), Spring Boot Actuator, Prometheus
 * **Testing:** JUnit 5, Mockito, Apache JMeter (Pruebas de Carga)
 
 ---
@@ -94,28 +100,66 @@ erDiagram
 
 El sistema utiliza un enfoque de **Defensa en Profundidad** para manejar peticiones masivas:
 
-1. **Capa Web (Filtro JWT):** Verifica permisos sin tocar la base de datos, reteniendo las conexiones HTTP al mínimo.
-2. **Capa de Servicio (Transición Atómica):** Valida que un carrito no se envíe a procesar dos veces al mismo tiempo cambiando su estado a `PROCESSING` con una actualización SQL directa.
-3. **Fondo de Trabajo (OrderProcessingWorker):** Hilos separados procesan los pagos y agotan el stock garantizando que el `UPDATE` a la base de datos verifique si el stock resultante es `>= 0`. Si un producto se agota, se lanza una excepción de negocio que cancela limpiamente el carrito de compra.
+1. **Capa Web (Filtro JWT & Virtual Threads):** Verifica permisos sin tocar la base de datos, mientras los *Virtual Threads* absorben ráfagas masivas de usuarios sin bloquear recursos del sistema operativo.
+2. **Capa de Servicio (Transición Atómica & Caffeine):** Valida que un carrito no se envíe a procesar dos veces. Las colisiones de múltiples clics se resuelven mediante *Optimistic Locking* y reintentos silenciosos.
+3. **Fondo de Trabajo (OrderProcessingWorker):** Un grupo de hilos `OrderWorker-*` procesan los pagos, congelan precios y agotan el stock garantizando que el `UPDATE` a la BD verifique el stock restante. Si un producto se agota, el error se captura limpiamente marcando la orden como `CANCELLED`.
+
+---
+
+## 📖 Documentación de la API (Swagger UI)
+
+La API cuenta con documentación interactiva autogenerada mediante **Springdoc OpenAPI**, lo que permite explorar los endpoints, ver los esquemas de datos y enviar peticiones de prueba directamente desde el navegador.
+
+1. Inicia la aplicación localmente.
+2. Navega a: 👉 `http://localhost:8080/swagger-ui.html`
+3. En la parte superior de Swagger UI, encontrarás un botón **"Authorize"**. Pega allí el token JWT obtenido en el endpoint de login para desbloquear las rutas protegidas.
+
+---
+
+## 🚀 Pruebas Rápidas con Postman
+
+Para facilitar la integración y exploración de la API, el proyecto incluye una colección preconfigurada de Postman.
+
+1. Localiza el archivo `Challenge.postman_collection.json` en la carpeta `/docs`.
+2. Ábrelo en **Postman** usando la opción `Import`.
+3. **Flujo básico:**
+* Ejecuta el request `POST /api/auth/login`.
+* El script de Postman extraerá automáticamente el JWT de la respuesta y lo guardará en la variable de entorno `{{jwt_token}}`.
+* Ahora puedes ejecutar el resto de peticiones (`Crear Carrito`, `Agregar Producto`, `Procesar Orden`) sin tener que copiar y pegar tokens manualmente.
+
+
+
+---
+
+## 👁️ Observabilidad y Monitoreo (Actuator & Prometheus)
+
+El proyecto está preparado para entornos de producción mediante la integración de **Spring Boot Actuator**, exponiendo métricas esenciales y formatos listos para consumo en Prometheus/Grafana.
+
+**Endpoints expuestos (`/actuator`):**
+
+* `/actuator/health`: Provee el estado de salud general.
+* `/actuator/metrics`: Expone métricas internas vitales en tiempo real.
+* `/actuator/prometheus`: Expone las métricas formateadas para *scraping*.
+
+**Métricas Críticas para Concurrencia:**
+
+* `http.server.requests`: Throughput y latencia de los endpoints REST.
+* `hikaricp.connections.active`: Conexiones a la base de datos actualmente en uso por los workers asíncronos.
+* `hikaricp.connections.pending`: Hilos encolados esperando una conexión SQL, vital para ajustar el *Pool Size*.
 
 ---
 
 ## 📊 Pruebas de Estrés y Rendimiento (JMeter)
 
-El sistema ha sido sometido a pruebas de carga reales utilizando **Apache JMeter**, simulando el peor escenario posible: un ataque masivo de compras sobre un inventario limitado.
+El sistema ha sido sometido a pruebas de carga utilizando **Apache JMeter**, simulando el peor escenario de e-commerce: un ataque masivo de compras sobre un inventario limitado (100 usuarios concurrentes para 90 productos).
+Localiza el archivo `TiendaStressLuchoTest.jmx` en la carpeta `/docs`.
 
-**Escenario de Prueba:**
+**Resultados Oficiales de la Prueba:**
 
-* **Usuarios Concurrentes:** 100 usuarios intentando procesar carritos independientes simultáneamente.
-* **Inventario Disponible:** 90 unidades de `PROD-001`.
-* **Configuración del Pool:** HikariCP ajustado a 30 conexiones (`maximum-pool-size: 30`) para evitar embotellamientos transaccionales.
-
-**Resultados Oficiales:**
-
-* ✅ **Órdenes Procesadas Exitosamente:** Exactamente `90` carritos terminaron en estado `PROCESSED`.
-* ✅ **Órdenes Rechazadas Limpiamente:** Exactamente `10` carritos terminaron en estado `CANCELLED` por reglas de negocio (*Out of stock*).
-* ✅ **Sobreventa (Overselling):** `0`. El inventario en la tabla `productos` nunca quedó en números negativos.
-* ✅ **Errores Críticos (500):** `0`. El manejo de transacciones con `noRollbackFor` previno bloqueos y excepciones inesperadas de rollback, permitiendo que la aplicación absorbiera la carga completa sin afectar la estabilidad.
+* ✅ **Órdenes Procesadas Exitosamente:** `90` carritos terminaron en estado `PROCESSED`.
+* ✅ **Órdenes Rechazadas Limpiamente:** `10` carritos terminaron en estado `CANCELLED` por reglas de negocio (*Out of stock*).
+* ✅ **Sobreventa (Overselling):** `0`. El inventario nunca quedó en números negativos gracias al *Compare-And-Swap*.
+* ✅ **Errores Críticos (500):** `0`. El manejo explícito de transacciones (`noRollbackFor`) previno bloqueos destructivos de la base de datos y *deadlocks*.
 
 ---
 
@@ -129,10 +173,8 @@ cd tienda-ecommerce
 
 ```
 
-**2. Configurar Propiedades (opcional):**
-El archivo `application.yml` ya está optimizado con los parámetros necesarios para correr el pool de conexiones de Hikari adecuadamente para pruebas locales.
-
-**3. Compilar y Ejecutar:**
+**2. Compilar y Ejecutar:**
+El proyecto cuenta con `defer-datasource-initialization: true` en el `application.yml` para pre-poblar la base de datos H2 automáticamente al arranque usando `data.sql`.
 
 ```bash
 ./mvnw clean install
@@ -140,12 +182,19 @@ El archivo `application.yml` ya está optimizado con los parámetros necesarios 
 
 ```
 
-**4. Endpoints Principales:**
+**3. Consola de Base de Datos Local (H2):**
 
-* `POST /api/auth/login` - Obtención de JWT
-* `POST /api/carts` - Creación de carrito
-* `POST /api/carts/{cartId}/products` - Agregado de productos al carrito
-* `POST /api/carts/{cartId}/process` - *Checkout* asíncrono (Retorna HTTP 202 Accepted)
+* **URL:** `http://localhost:8080/h2-console`
+* **JDBC URL:** `jdbc:h2:mem:cartdb`
+* **Usuario:** `sa`
+* **Contraseña:** *(dejar en blanco)*
+
+**4. Endpoints Principales (Ver Swagger para detalles):**
+
+* `POST /api/auth/login` - Autenticación
+* `POST /api/carts` - Inicializa un nuevo carrito vacio (`CREATED`)
+* `POST /api/carts/{cartId}/products` - Modifica ítems en el carrito
+* `POST /api/carts/{cartId}/process` - Inicia el Checkout asíncrono (Retorna HTTP 202)
 
 ```
 
