@@ -1,13 +1,13 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:cartdb
-    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:cartdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
     username: sa
     password:
     hikari:
-      maximum-pool-size:50
-      minimum-idle:10
-      connection-timeout:30000
+      maximum-pool-size: 30
+      minimum-idle: 10
+      connection-timeout: 10000
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true # Obliga a JPA a crear las tablas ANTES de correr data.sql

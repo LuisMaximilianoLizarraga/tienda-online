@@ -21,7 +21,7 @@ INSERT INTO categorias (id, nombre) VALUES
 -- 3. TABLE: productos (Referencing categoria_id as Foreign Key)
 -- ===================================================================
 INSERT INTO productos (id, codigo, nombre, precio, stock, categoria_id) VALUES
-                                                                            (1, 'PROD-001', 'Whey Protein Isolate 1kg', 35.00, 1000, 1),
+                                                                            (1, 'PROD-001', 'Whey Protein Isolate 1kg', 35.00, 80, 1),
                                                                             (2, 'PROD-002', 'Concentrated Whey 1kg', 25.00, 200, 1),
                                                                             (3, 'PROD-003', 'Creatina Monohidratada 300g', 20.00, 500, 2),
                                                                             (4, 'PROD-004', 'Multvitamínico Alpha 90 caps', 15.00, 100, 3),

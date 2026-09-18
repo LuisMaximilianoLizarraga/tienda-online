@@ -2,6 +2,7 @@ package com.lucho.tienda.service;
 
 import com.lucho.tienda.constant.ErrorMessageConstants;
 import com.lucho.tienda.exception.BadRequestException;
+import com.lucho.tienda.exception.OutOfStockException;
 import com.lucho.tienda.model.Cart;
 import com.lucho.tienda.model.CartItem;
 import com.lucho.tienda.model.Discount;
@@ -25,7 +26,7 @@ public class StockService {
     private final DiscountRepository discountRepository;
     private final DatabaseDiscountStrategy discountStrategy;
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional(propagation = Propagation.MANDATORY, noRollbackFor = OutOfStockException.class)
     public void deductStockForCart(Cart cart) {
         if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new BadRequestException("Cannot process stock for an empty cart.");
@@ -46,7 +47,7 @@ public class StockService {
             int updatedRows = productRepository.decrementStockSafely(product.getCode(), requiredQuantity);
 
             if (updatedRows == 0) {
-                throw new BadRequestException(String.format(ErrorMessageConstants.OUT_OF_STOCK,product.getCode()));
+                throw new OutOfStockException(product.getCode());
             }
 
             BigDecimal unitPrice = product.getPrice();

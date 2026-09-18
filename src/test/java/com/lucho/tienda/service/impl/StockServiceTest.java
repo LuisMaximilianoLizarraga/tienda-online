@@ -1,6 +1,7 @@
 package com.lucho.tienda.service.impl;
 
 import com.lucho.tienda.exception.BadRequestException;
+import com.lucho.tienda.exception.OutOfStockException;
 import com.lucho.tienda.model.Cart;
 import com.lucho.tienda.model.CartItem;
 import com.lucho.tienda.model.Product;
@@ -101,7 +102,7 @@ class StockServiceTest {
         when(discountRepository.findByActiveTrue()).thenReturn(new ArrayList<>());
         when(productRepository.decrementStockSafely("P01", 2)).thenReturn(0); // 0 filas actualizadas
 
-        assertThrows(BadRequestException.class, () -> stockService.deductStockForCart(cart));
+        assertThrows(OutOfStockException.class, () -> stockService.deductStockForCart(cart));
         verify(productRepository).decrementStockSafely("P01", 2);
     }
 

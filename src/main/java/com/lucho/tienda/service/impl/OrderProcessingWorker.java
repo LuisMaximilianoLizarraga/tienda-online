@@ -32,7 +32,7 @@ public class OrderProcessingWorker {
     private long sleepMs;
 
     @Async("asyncExecutor")
-    @Transactional
+    @Transactional(noRollbackFor = OutOfStockException.class)
     public void processOrderAsync(Long cartId) {
         log.info("Starting asynchronous order processing for cart ID: {}", cartId);
 
