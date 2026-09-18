@@ -1,0 +1,106 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ProductRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: ProductRepository (com.lucho.tienda.repository)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$MdChGmaj</td>
+  </tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$MdChGmaj$auxiliary$vHWTEaLy</td>
+  </tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$MdChGmaj$auxiliary$ZkHhrdxn</td>
+  </tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$TckbcaDK</td>
+  </tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$TckbcaDK$auxiliary$FcJlg4jb</td>
+  </tr>
+  <tr>
+    <td class="name">ProductRepository$MockitoMock$TckbcaDK$auxiliary$XOzcWYHQ</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.repository;
+&nbsp;
+&nbsp;import com.lucho.tienda.model.Product;
+&nbsp;import org.springframework.data.jpa.repository.JpaRepository;
+&nbsp;import org.springframework.data.jpa.repository.Modifying;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;public interface ProductRepository extends JpaRepository&lt;Product, Long&gt;{
+&nbsp;    Optional&lt;Product&gt; findByCode(String code);
+&nbsp;    /**
+&nbsp;     * Atomically decrements the stock only if there is enough available.
+&nbsp;     * Returns the number of affected rows (1 if successful, 0 if out of stock).
+&nbsp;     */
+&nbsp;    @Modifying
+&nbsp;    @Query(&quot;UPDATE Product p SET p.stock = p.stock - :quantity WHERE p.code = :code AND p.stock &gt;= :quantity&quot;)
+&nbsp;    int decrementStockSafely(@Param(&quot;code&quot;) String code, @Param(&quot;quantity&quot;) int quantity);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CartRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.repository</a>
+</div>
+
+<h1>Coverage Summary for Class: CartRepository (com.lucho.tienda.repository)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">CartRepository$MockitoMock$qxMfW6LR</td>
+  </tr>
+  <tr>
+    <td class="name">CartRepository$MockitoMock$qxMfW6LR$auxiliary$9sI5yCBR</td>
+  </tr>
+  <tr>
+    <td class="name">CartRepository$MockitoMock$qxMfW6LR$auxiliary$SDaLKwDk</td>
+  </tr>
+  <tr>
+    <td class="name">CartRepository$MockitoMock$thmLlpXG</td>
+  </tr>
+  <tr>
+    <td class="name">CartRepository$MockitoMock$thmLlpXG$auxiliary$c8d1XIlY</td>
+  </tr>
+  <tr>
+    <td class="name">CartRepository$MockitoMock$thmLlpXG$auxiliary$jzOJBDWn</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.repository;
+&nbsp;
+&nbsp;import com.lucho.tienda.model.Cart;
+&nbsp;import org.springframework.data.jpa.repository.EntityGraph;
+&nbsp;import org.springframework.data.jpa.repository.JpaRepository;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;public interface CartRepository extends JpaRepository&lt;Cart, Long&gt; {
+&nbsp;
+&nbsp;    List&lt;Cart&gt; findByUserId(Long userId);
+&nbsp;
+&nbsp;    @EntityGraph(attributePaths = {&quot;items&quot;, &quot;items.product&quot;})
+&nbsp;    Optional&lt;Cart&gt; findCartById(Long id);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:cartdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size:50
+      minimum-idle:10
+      connection-timeout:30000
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true # Obliga a JPA a crear las tablas ANTES de correr data.sql
+    hibernate:
+      ddl-auto: update
+    show-sql: true     # it will allows us to see the SQL queries on the console
+  sql:
+    init:
+      mode: always # Fuerza la ejecución de data.sql
+  h2:
+    console:
+      enabled: true    # Enable a Web console to see the DB
+      path: /h2-console
+    datasource:
+      url: jdbc:h2:mem:cartdb
+      driverClassName: org.h2.Driver
+      username: sa
+      password:
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health, info, metrics # It exposes main metrics
+    endpoint:
+      metrics:
+        enabled: true
+  threads:
+    virtual:
+      enabled: true
+  cache:
+    type: caffeine
+    cache-names: activeDiscounts
+    # Caffeine specifications:
+    ## - expireAfterWrite=10m (Expires 10 minutes after being written)
+    ## - maximumSize=100 (Stores a maximum of 100 distinct results to prevent memory leaks)
+    caffeine:
+      spec: expireAfterWrite=10m,maximumSize=100
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: 3600000 # 1 hour in ms
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+  file:
+    name: logs/application.log
+    # Habilitar explícitamente Caffeine
+
+# Cart async processing configuration
+cart:
+  processing:
+    sleep-ms: 10000
+    async:
+      core-pool-size: 10
+      max-pool-size: 50
+      queue-capacity: 100
+      thread-name-prefix: "OrderWorker-"
+    retry:
+      max-attempts: 3
+      backoff-delay: 100
+# ==========================================
+# ACTUATOR & METRICS CONFIGURATION
+# ==========================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true

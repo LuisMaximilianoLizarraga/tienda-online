@@ -1,0 +1,229 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > DatabaseDiscountStrategy</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.strategy</a>
+</div>
+
+<h1>Coverage Summary for Class: DatabaseDiscountStrategy (com.lucho.tienda.strategy)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DatabaseDiscountStrategy</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    95%
+  </span>
+  <span class="absValue">
+    (57/60)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (55/55)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.strategy;
+&nbsp;
+&nbsp;import com.lucho.tienda.constant.CartConstants;
+&nbsp;import com.lucho.tienda.model.Cart;
+&nbsp;import com.lucho.tienda.model.CartItem;
+&nbsp;import com.lucho.tienda.model.Discount;
+&nbsp;import com.lucho.tienda.repository.DiscountRepository;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.math.RoundingMode;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Objects;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;@Component
+&nbsp;public class DatabaseDiscountStrategy {
+&nbsp;
+&nbsp;    private final DiscountRepository discountRepository;
+&nbsp;
+<b class="fc">&nbsp;    public DatabaseDiscountStrategy(DiscountRepository discountRepository) {</b>
+<b class="fc">&nbsp;        this.discountRepository = discountRepository;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public BigDecimal calculateDiscount(Cart cart) {
+<b class="fc">&nbsp;        if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        List&lt;Discount&gt; activeDiscounts = discountRepository.findByActiveTrue();</b>
+<b class="fc">&nbsp;        if (activeDiscounts.isEmpty()) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // Index active discounts by Category ID for O(1) lookup
+<b class="fc">&nbsp;        Map&lt;Long, BigDecimal&gt; discountMap = activeDiscounts.stream()</b>
+<b class="fc">&nbsp;                .filter(Discount::getActive)</b>
+<b class="fc">&nbsp;                .filter(d -&gt; d.getCategory() != null &amp;&amp; d.getCategory().getId() != null)</b>
+<b class="fc">&nbsp;                .filter(d -&gt; d.getPercentage() != null &amp;&amp; d.getPercentage().compareTo(BigDecimal.ZERO) &gt; 0)</b>
+<b class="fc">&nbsp;                .collect(Collectors.toMap(</b>
+<b class="fc">&nbsp;                        d -&gt; d.getCategory().getId(),</b>
+&nbsp;                        Discount::getPercentage,
+<b class="fc">&nbsp;                        (existing, replacement) -&gt; existing // keeps first matching percentage</b>
+&nbsp;                ));
+&nbsp;
+<b class="fc">&nbsp;        return cart.getItems().stream()</b>
+<b class="fc">&nbsp;                .filter(Objects::nonNull)</b>
+<b class="fc">&nbsp;                .map(item -&gt; calculateItemDiscountWithMap(item, discountMap))</b>
+<b class="fc">&nbsp;                .reduce(BigDecimal.ZERO, BigDecimal::add);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Internal helper to calculate discount using the pre-computed O(1) Map
+&nbsp;    private BigDecimal calculateItemDiscountWithMap(CartItem item, Map&lt;Long, BigDecimal&gt; discountMap) {
+<b class="pc">&nbsp;        if (item == null || item.getProduct() == null || item.getProduct().getCategory() == null) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Long categoryId = item.getProduct().getCategory().getId();</b>
+<b class="fc">&nbsp;        BigDecimal percentage = discountMap.get(categoryId);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (percentage == null) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        BigDecimal basePrice = (item.getUnitPrice() != null) ? item.getUnitPrice() : item.getProduct().getPrice();</b>
+<b class="fc">&nbsp;        if (basePrice == null || basePrice.compareTo(BigDecimal.ZERO) &lt;= 0) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        int qty = (item.getQuantity() != null &amp;&amp; item.getQuantity() &gt; 0)</b>
+<b class="fc">&nbsp;                ? item.getQuantity()</b>
+<b class="fc">&nbsp;                : CartConstants.DEFAULT_QUANTITY;</b>
+<b class="fc">&nbsp;        BigDecimal lineSubtotal = basePrice.multiply(BigDecimal.valueOf(qty));</b>
+&nbsp;
+<b class="fc">&nbsp;        return lineSubtotal.multiply(percentage)</b>
+<b class="fc">&nbsp;                .divide(new BigDecimal(CartConstants.PERCENTAGE_DIVISOR), CartConstants.MONEY_SCALE, RoundingMode.HALF_UP);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Original method kept for compatibility with OrderProcessingWorker
+&nbsp;    public BigDecimal calculateItemDiscount(CartItem item, List&lt;Discount&gt; activeDiscounts) {
+<b class="fc">&nbsp;        if (item == null || item.getProduct() == null || item.getProduct().getCategory() == null) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        if (activeDiscounts == null || activeDiscounts.isEmpty()) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Long categoryId = item.getProduct().getCategory().getId();</b>
+<b class="fc">&nbsp;        BigDecimal basePrice = (item.getUnitPrice() != null) ? item.getUnitPrice() : item.getProduct().getPrice();</b>
+&nbsp;
+<b class="fc">&nbsp;        if (basePrice == null || basePrice.compareTo(BigDecimal.ZERO) &lt;= 0) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+<b class="pc">&nbsp;        int qty = (item.getQuantity() != null &amp;&amp; item.getQuantity() &gt; 0)</b>
+<b class="fc">&nbsp;                ? item.getQuantity()</b>
+<b class="fc">&nbsp;                : CartConstants.DEFAULT_QUANTITY;</b>
+<b class="fc">&nbsp;        BigDecimal lineSubtotal = basePrice.multiply(BigDecimal.valueOf(qty));</b>
+&nbsp;
+<b class="fc">&nbsp;        return activeDiscounts.stream()</b>
+<b class="fc">&nbsp;                .filter(Discount::getActive)</b>
+<b class="fc">&nbsp;                .filter(discount -&gt; discount.getCategory() != null)</b>
+<b class="fc">&nbsp;                .filter(discount -&gt; categoryId.equals(discount.getCategory().getId()))</b>
+<b class="pc">&nbsp;                .filter(discount -&gt; discount.getPercentage() != null</b>
+<b class="fc">&nbsp;                        &amp;&amp; discount.getPercentage().compareTo(BigDecimal.ZERO) &gt; 0)</b>
+<b class="fc">&nbsp;                .map(discount -&gt; lineSubtotal.multiply(discount.getPercentage())</b>
+<b class="fc">&nbsp;                        .divide(new BigDecimal(CartConstants.PERCENTAGE_DIVISOR), CartConstants.MONEY_SCALE, RoundingMode.HALF_UP))</b>
+<b class="fc">&nbsp;                .findFirst()</b>
+<b class="fc">&nbsp;                .orElse(BigDecimal.ZERO);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

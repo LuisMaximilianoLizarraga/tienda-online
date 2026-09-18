@@ -1,0 +1,179 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > DatabaseDiscountStrategy</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.suplementoslucho.tienda.strategy</a>
+</div>
+
+<h1>Coverage Summary for Class: DatabaseDiscountStrategy (com.suplementoslucho.tienda.strategy)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DatabaseDiscountStrategy</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83,3%
+  </span>
+  <span class="absValue">
+    (20/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (20/20)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.suplementoslucho.tienda.strategy;
+&nbsp;
+&nbsp;import model.com.lucho.tienda.Cart;
+&nbsp;import model.com.lucho.tienda.Discount;
+&nbsp;import model.com.lucho.tienda.Product;
+&nbsp;import repository.com.lucho.tienda.DiscountRepository;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.math.RoundingMode;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;@Component
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class DatabaseDiscountStrategy implements DiscountStrategy {
+&nbsp;
+&nbsp;    private final DiscountRepository discountRepository;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public BigDecimal calculateDiscount(Cart cart) {
+<b class="fc">&nbsp;        if (cart == null || cart.getProducts() == null || cart.getProducts().isEmpty()) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // 1. Busca únicamente los descuentos activos en la tabla &#39;descuentos&#39;
+<b class="fc">&nbsp;        List&lt;Discount&gt; activeDiscounts = discountRepository.findByActiveTrue();</b>
+<b class="fc">&nbsp;        if (activeDiscounts.isEmpty()) {</b>
+<b class="fc">&nbsp;            return BigDecimal.ZERO;</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // 2. Crea un mapa rápido: Categoría -&gt; Porcentaje
+<b class="fc">&nbsp;        Map&lt;String, BigDecimal&gt; discountMap = activeDiscounts.stream()</b>
+<b class="pc">&nbsp;                .filter(d -&gt; d.getCategoryName() != null &amp;&amp; d.getPercentage() != null)</b>
+<b class="fc">&nbsp;                .collect(Collectors.toMap(</b>
+<b class="fc">&nbsp;                        d -&gt; d.getCategoryName().toUpperCase(),</b>
+&nbsp;                        Discount::getPercentage,
+<b class="fc">&nbsp;                        (existing, replacement) -&gt; existing</b>
+&nbsp;                ));
+&nbsp;
+<b class="fc">&nbsp;        BigDecimal totalDiscount = BigDecimal.ZERO;</b>
+&nbsp;
+&nbsp;        // 3. Modulo de cálculo: si el producto coincide con una categoría activa, aplica %
+<b class="fc">&nbsp;        for (Product product : cart.getProducts()) {</b>
+<b class="pc">&nbsp;            if (product == null || product.getCategory() == null || product.getPrice() == null) {</b>
+&nbsp;                continue;
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            BigDecimal percentage = discountMap.get(product.getCategory().toUpperCase());</b>
+<b class="pc">&nbsp;            if (percentage != null &amp;&amp; percentage.compareTo(BigDecimal.ZERO) &gt; 0) {</b>
+<b class="fc">&nbsp;                BigDecimal itemDiscount = product.getPrice()</b>
+<b class="fc">&nbsp;                        .multiply(percentage)</b>
+<b class="fc">&nbsp;                        .divide(new BigDecimal(&quot;100&quot;), 2, RoundingMode.HALF_UP);</b>
+&nbsp;
+<b class="fc">&nbsp;                totalDiscount = totalDiscount.add(itemDiscount);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return totalDiscount;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-14 07:28</div>
+</div>
+</body>
+</html>

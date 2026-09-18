@@ -1,0 +1,312 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CartServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.suplementoslucho.tienda.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: CartServiceImpl (com.suplementoslucho.tienda.service.impl)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CartServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (13/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    76,9%
+  </span>
+  <span class="absValue">
+    (20/26)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    91,4%
+  </span>
+  <span class="absValue">
+    (53/58)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">CartServiceImpl$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (13/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    76,9%
+  </span>
+  <span class="absValue">
+    (20/26)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    91,4%
+  </span>
+  <span class="absValue">
+    (53/58)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.suplementoslucho.tienda.service.impl;
+&nbsp;
+&nbsp;import constant.com.lucho.tienda.CartConstants;
+&nbsp;import constant.com.lucho.tienda.ErrorMessageConstants;
+&nbsp;import dto.com.lucho.tienda.ProductOperationRequest;
+&nbsp;import exception.com.lucho.tienda.BadRequestException;
+&nbsp;import exception.com.lucho.tienda.ResourceNotFoundException;
+&nbsp;import model.com.lucho.tienda.Cart;
+&nbsp;import model.com.lucho.tienda.Product;
+&nbsp;import model.com.lucho.tienda.User;
+&nbsp;import repository.com.lucho.tienda.CartRepository;
+&nbsp;import repository.com.lucho.tienda.ProductRepository;
+&nbsp;import repository.com.lucho.tienda.UserRepository;
+&nbsp;import service.com.lucho.tienda.CartService;
+&nbsp;import strategy.com.lucho.tienda.DiscountStrategy;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.orm.ObjectOptimisticLockingFailureException;
+&nbsp;import org.springframework.scheduling.annotation.Async;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;import org.springframework.transaction.annotation.Transactional;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+<b class="fc">&nbsp;@Slf4j</b>
+&nbsp;@Service
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class CartServiceImpl implements CartService, CartConstants, ErrorMessageConstants {
+&nbsp;
+&nbsp;    private final CartRepository cartRepository;
+&nbsp;    private final UserRepository userRepository;
+&nbsp;    private final ProductRepository productRepository;
+&nbsp;    private final DiscountStrategy discountStrategy;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public Cart createCart(Long userId) {
+<b class="fc">&nbsp;        if (userId == null) {</b>
+<b class="fc">&nbsp;            throw new BadRequestException(USER_ID_REQUIRED);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        User user = userRepository.findById(userId)</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new ResourceNotFoundException(String.format(USER_NOT_FOUND, userId)));</b>
+&nbsp;
+<b class="fc">&nbsp;        Cart cart = new Cart();</b>
+<b class="fc">&nbsp;        cart.setUser(user);</b>
+<b class="fc">&nbsp;        cart.setProducts(new ArrayList&lt;&gt;());</b>
+<b class="fc">&nbsp;        return cartRepository.save(cart);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public Cart addProduct(ProductOperationRequest request) {
+<b class="fc">&nbsp;        validateProductRequest(request);</b>
+<b class="fc">&nbsp;        Cart cart = getCartWithProducts(request.cartId());</b>
+<b class="fc">&nbsp;        Product product = getProduct(request.productCode());</b>
+&nbsp;
+<b class="fc">&nbsp;        cart.getProducts().add(product);</b>
+<b class="fc">&nbsp;        return cartRepository.save(cart);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public Cart removeProduct(ProductOperationRequest request) {
+<b class="fc">&nbsp;        validateProductRequest(request);</b>
+<b class="fc">&nbsp;        Cart cart = getCartWithProducts(request.cartId());</b>
+<b class="fc">&nbsp;        Product product = getProduct(request.productCode());</b>
+&nbsp;
+<b class="fc">&nbsp;        cart.getProducts().remove(product);</b>
+<b class="fc">&nbsp;        return cartRepository.save(cart);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public List&lt;Product&gt; getCartProducts(Long cartId) {
+<b class="fc">&nbsp;        if (cartId == null) {</b>
+<b class="fc">&nbsp;            throw new BadRequestException(CART_ID_REQUIRED);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return getCartWithProducts(cartId).getProducts();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public List&lt;Cart&gt; getUserCarts(Long userId) {
+<b class="fc">&nbsp;        if (userId == null) {</b>
+<b class="fc">&nbsp;            throw new BadRequestException(USER_ID_REQUIRED);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return cartRepository.findByUserId(userId);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Async
+&nbsp;    public void processOrderAsync(Long cartId) {
+<b class="fc">&nbsp;        if (cartId == null) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        Cart cart = cartRepository.findCartById(cartId)</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new ResourceNotFoundException(String.format(CART_NOT_FOUND, cartId)));</b>
+&nbsp;
+<b class="pc">&nbsp;        if (STATUS_PROCESSED.equalsIgnoreCase(cart.getStatus())) {</b>
+<b class="fc">&nbsp;            log.info(&quot;El carrito ID {} ya fue procesado previamente.&quot;, cartId);</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        BigDecimal totalAmount = calculateCartTotal(cart);</b>
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            Thread.sleep(ASYNC_SIMULATION_DELAY_MS);</b>
+&nbsp;        } catch (InterruptedException e) {
+<b class="nc">&nbsp;            Thread.currentThread().interrupt();</b>
+<b class="nc">&nbsp;            log.error(&quot;Procesamiento asíncrono interrumpido para el carrito ID {}&quot;, cartId, e);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        updateCartStatusSafely(cartId, totalAmount);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional
+&nbsp;    public void updateCartStatusSafely(Long cartId, BigDecimal totalAmount) {
+<b class="fc">&nbsp;        if (cartId == null) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+&nbsp;        try {
+<b class="fc">&nbsp;            Cart cart = cartRepository.findCartById(cartId)</b>
+<b class="fc">&nbsp;                    .orElseThrow(() -&gt; new ResourceNotFoundException(String.format(CART_NOT_FOUND, cartId)));</b>
+&nbsp;
+<b class="pc">&nbsp;            if (!STATUS_PROCESSED.equalsIgnoreCase(cart.getStatus())) {</b>
+<b class="fc">&nbsp;                cart.setStatus(STATUS_PROCESSED);</b>
+<b class="pc">&nbsp;                cart.setTotalAmount(totalAmount != null ? totalAmount : BigDecimal.ZERO);</b>
+<b class="fc">&nbsp;                cartRepository.save(cart);</b>
+<b class="fc">&nbsp;                log.info(&quot;Orden procesada exitosamente para carrito {}. Total persistido: ${}&quot;, cartId, totalAmount);</b>
+&nbsp;            }
+&nbsp;        } catch (ObjectOptimisticLockingFailureException e) {
+<b class="fc">&nbsp;            log.warn(&quot;Conflicto de concurrencia evitado por @Version en carrito ID: {}&quot;, cartId);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    @Transactional(readOnly = true)
+&nbsp;    public Cart getCartById(Long cartId) {
+<b class="fc">&nbsp;        if (cartId == null) {</b>
+<b class="fc">&nbsp;            throw new BadRequestException(CART_ID_REQUIRED);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return getCartWithProducts(cartId);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public BigDecimal calculateCartTotal(Cart cart) {
+<b class="fc">&nbsp;        BigDecimal subtotal = cart.getProducts().stream()</b>
+<b class="fc">&nbsp;                .map(Product::getPrice)</b>
+<b class="fc">&nbsp;                .reduce(BigDecimal.ZERO, BigDecimal::add);</b>
+&nbsp;
+<b class="fc">&nbsp;        BigDecimal discount = discountStrategy.calculateDiscount(cart);</b>
+<b class="fc">&nbsp;        return subtotal.subtract(discount);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // --- Auxiliares ---
+&nbsp;
+&nbsp;    private Cart getCartWithProducts(Long cartId) {
+<b class="fc">&nbsp;        return cartRepository.findCartById(cartId)</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new ResourceNotFoundException(String.format(CART_NOT_FOUND, cartId)));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private Product getProduct(String code) {
+<b class="fc">&nbsp;        return productRepository.findByCode(code)</b>
+<b class="fc">&nbsp;                .orElseThrow(() -&gt; new ResourceNotFoundException(String.format(PRODUCT_NOT_FOUND, code)));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void validateProductRequest(ProductOperationRequest request) {
+<b class="pc">&nbsp;        if (request == null || request.cartId() == null || request.productCode() == null || request.productCode().isBlank()) {</b>
+<b class="fc">&nbsp;            throw new BadRequestException(INVALID_PRODUCT_REQUEST);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-14 07:28</div>
+</div>
+</body>
+</html>

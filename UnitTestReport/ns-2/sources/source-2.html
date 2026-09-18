@@ -1,0 +1,170 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > AsyncConfig</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.config</a>
+</div>
+
+<h1>Coverage Summary for Class: AsyncConfig (com.lucho.tienda.config)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AsyncConfig</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (2/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (8/10)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">AsyncConfig$$SpringCGLIB$$0</td>
+  </tr>
+  <tr>
+    <td class="name">AsyncConfig$$SpringCGLIB$$FastClass$$0</td>
+  </tr>
+  <tr>
+    <td class="name">AsyncConfig$$SpringCGLIB$$FastClass$$1</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (2/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (8/10)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.config;
+&nbsp;
+&nbsp;import com.lucho.tienda.exception.CustomAsyncExceptionHandler;
+&nbsp;import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+&nbsp;import org.springframework.beans.factory.annotation.Value;
+&nbsp;import org.springframework.context.annotation.Bean;
+&nbsp;import org.springframework.context.annotation.Configuration;
+&nbsp;import org.springframework.scheduling.annotation.AsyncConfigurer;
+&nbsp;import org.springframework.scheduling.annotation.EnableAsync;
+&nbsp;import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+&nbsp;
+&nbsp;import java.util.concurrent.Executor;
+&nbsp;
+&nbsp;@Configuration
+&nbsp;@EnableAsync
+<b class="fc">&nbsp;public class AsyncConfig implements AsyncConfigurer {</b>
+&nbsp;
+&nbsp;    @Value(&quot;${cart.processing.async.core-pool-size:10}&quot;)
+&nbsp;    private int corePoolSize;
+&nbsp;
+&nbsp;    @Value(&quot;${cart.processing.async.max-pool-size:50}&quot;)
+&nbsp;    private int maxPoolSize;
+&nbsp;
+&nbsp;    @Value(&quot;${cart.processing.async.queue-capacity:100}&quot;)
+&nbsp;    private int queueCapacity;
+&nbsp;
+&nbsp;    @Value(&quot;${cart.processing.async.thread-name-prefix:OrderWorker-}&quot;)
+&nbsp;    private String threadNamePrefix;
+&nbsp;
+&nbsp;    @Bean(name = &quot;asyncExecutor&quot;)
+&nbsp;    public Executor asyncExecutor() {
+<b class="fc">&nbsp;        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();</b>
+<b class="fc">&nbsp;        executor.setCorePoolSize(corePoolSize);</b>
+<b class="fc">&nbsp;        executor.setMaxPoolSize(maxPoolSize);</b>
+<b class="fc">&nbsp;        executor.setQueueCapacity(queueCapacity);</b>
+<b class="fc">&nbsp;        executor.setThreadNamePrefix(threadNamePrefix);</b>
+<b class="fc">&nbsp;        executor.initialize();</b>
+<b class="fc">&nbsp;        return executor;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Executor getAsyncExecutor() {
+<b class="nc">&nbsp;        return asyncExecutor();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+<b class="nc">&nbsp;        return new CustomAsyncExceptionHandler();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

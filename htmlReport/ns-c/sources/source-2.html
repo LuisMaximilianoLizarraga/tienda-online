@@ -1,0 +1,106 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CartService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.suplementoslucho.tienda.service</a>
+</div>
+
+<h1>Coverage Summary for Class: CartService (com.suplementoslucho.tienda.service)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">CartService$MockitoMock$5rigmLtO</td>
+  </tr>
+  <tr>
+    <td class="name">CartService$MockitoMock$5rigmLtO$auxiliary$6EC5Ne03</td>
+  </tr>
+  <tr>
+    <td class="name">CartService$MockitoMock$5rigmLtO$auxiliary$kE0AKkJh</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.suplementoslucho.tienda.service;
+&nbsp;
+&nbsp;import com.suplementoslucho.tienda.dto.ProductOperationRequest;
+&nbsp;import com.suplementoslucho.tienda.model.Cart;
+&nbsp;import com.suplementoslucho.tienda.model.Product;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public interface CartService {
+&nbsp;
+&nbsp;    Cart createCart(Long userId);
+&nbsp;
+&nbsp;    Cart addProduct(ProductOperationRequest request);
+&nbsp;
+&nbsp;    Cart removeProduct(ProductOperationRequest request);
+&nbsp;
+&nbsp;    List&lt;Product&gt; getCartProducts(Long cartId);
+&nbsp;
+&nbsp;    List&lt;Cart&gt; getUserCarts(Long userId);
+&nbsp;
+&nbsp;    void processOrderAsync(Long cartId);
+&nbsp;
+&nbsp;    void updateCartStatusSafely(Long cartId, BigDecimal totalAmount);
+&nbsp;
+&nbsp;    Cart getCartById(Long cartId);
+&nbsp;
+&nbsp;    BigDecimal calculateCartTotal(Cart cart);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-14 07:28</div>
+</div>
+</body>
+</html>

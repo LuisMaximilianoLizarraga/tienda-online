@@ -1,0 +1,228 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CartItem</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.model</a>
+</div>
+
+<h1>Coverage Summary for Class: CartItem (com.lucho.tienda.model)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CartItem</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94,4%
+  </span>
+  <span class="absValue">
+    (17/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">CartItem$HibernateInstantiator$eTeJsSH8</td>
+  </tr>
+  <tr>
+    <td class="name">CartItem$HibernateInstantiator$KQ2x9E70</td>
+  </tr>
+  <tr>
+    <td class="name">CartItem$HibernateInstantiator$LBxZz47l</td>
+  </tr>
+  <tr>
+    <td class="name">CartItem$HibernateInstantiator$vTXs24ri</td>
+  </tr>
+  <tr>
+    <td class="name">CartItem$HibernateProxy$2UFnmLXh</td>
+  </tr>
+  <tr>
+    <td class="name">CartItem$HibernateProxy$RCmtH3rm</td>
+  </tr>
+  <tr>
+    <td class="name">CartItem$HibernateProxy$SM5e8m7b</td>
+  </tr>
+  <tr>
+    <td class="name">CartItem$HibernateProxy$Whwt78jT</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94,4%
+  </span>
+  <span class="absValue">
+    (17/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.model;
+&nbsp;
+&nbsp;import jakarta.persistence.*;
+&nbsp;import lombok.*;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.Objects;
+&nbsp;
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;carrito_items&quot;, indexes = {
+&nbsp;        @Index(name = &quot;idx_cart_items_cart_id&quot;, columnList = &quot;carrito_id&quot;)
+&nbsp;})
+&nbsp;@Getter
+&nbsp;@Setter
+&nbsp;@NoArgsConstructor
+&nbsp;@AllArgsConstructor
+&nbsp;@Builder
+&nbsp;public class CartItem {
+&nbsp;
+&nbsp;    @Id
+&nbsp;    @GeneratedValue(strategy = GenerationType.IDENTITY)
+&nbsp;    private Long id;
+&nbsp;
+&nbsp;    @ManyToOne(fetch = FetchType.LAZY)
+&nbsp;    @JoinColumn(name = &quot;carrito_id&quot;, nullable = false)
+&nbsp;    private Cart cart;
+&nbsp;
+&nbsp;    @ManyToOne(fetch = FetchType.LAZY)
+&nbsp;    @JoinColumn(name = &quot;producto_id&quot;, nullable = false)
+&nbsp;    private Product product;
+&nbsp;
+&nbsp;    @Column(name = &quot;cantidad&quot;, nullable = false)
+&nbsp;    private Integer quantity = 1;
+&nbsp;
+&nbsp;    // Frozen list price per unit captured at checkout time
+&nbsp;    @Column(name = &quot;precio_unitario&quot;)
+&nbsp;    private BigDecimal unitPrice;
+&nbsp;
+&nbsp;    // Frozen discount amount per unit captured at checkout time
+&nbsp;    @Column(name = &quot;monto_descuento&quot;)
+&nbsp;    private BigDecimal discountAmount;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public boolean equals(Object o) {
+<b class="fc">&nbsp;        if (this == o) return true;</b>
+<b class="pc">&nbsp;        if (!(o instanceof CartItem cartItem)) return false;</b>
+&nbsp;
+&nbsp;        // If already persisted, compare by ID
+<b class="fc">&nbsp;        if (id != null &amp;&amp; cartItem.id != null) {</b>
+<b class="fc">&nbsp;            return Objects.equals(id, cartItem.id);</b>
+&nbsp;        }
+&nbsp;        // Otherwise, compare by the associated product
+<b class="fc">&nbsp;        return product != null &amp;&amp; cartItem.product != null &amp;&amp;</b>
+<b class="fc">&nbsp;                Objects.equals(product.getCode(), cartItem.product.getCode());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public int hashCode() {
+<b class="fc">&nbsp;        return getClass().hashCode();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Helper method to compute the net unit price after discount
+&nbsp;    public BigDecimal getNetUnitPrice() {
+<b class="fc">&nbsp;        if (unitPrice == null) return BigDecimal.ZERO;</b>
+<b class="fc">&nbsp;        BigDecimal discount = (discountAmount != null) ? discountAmount : BigDecimal.ZERO;</b>
+<b class="fc">&nbsp;        return unitPrice.subtract(discount);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Final subtotal charged for this line item
+&nbsp;    public BigDecimal getLineTotal() {
+<b class="fc">&nbsp;        return getNetUnitPrice().multiply(BigDecimal.valueOf(quantity != null ? quantity : 1));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

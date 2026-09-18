@@ -1,0 +1,113 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Cart</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.suplementoslucho.tienda.model</a>
+</div>
+
+<h1>Coverage Summary for Class: Cart (com.suplementoslucho.tienda.model)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+</tr>
+  <tr>
+    <td class="name">Cart$HibernateInstantiator$nzhaF3S3</td>
+  </tr>
+  <tr>
+    <td class="name">Cart$HibernateProxy$22YsiK1p</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.suplementoslucho.tienda.model;
+&nbsp;
+&nbsp;import jakarta.persistence.*;
+&nbsp;import lombok.*;
+&nbsp;import java.math.BigDecimal;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@Entity
+&nbsp;@Table(name = &quot;carritos&quot;) // Nombre físico en la BD
+&nbsp;@Getter
+&nbsp;@Setter
+&nbsp;@NoArgsConstructor
+&nbsp;@AllArgsConstructor
+&nbsp;@Builder
+&nbsp;public class Cart {
+&nbsp;
+&nbsp;    @Id
+&nbsp;    @GeneratedValue(strategy = GenerationType.IDENTITY)
+&nbsp;    private Long id;
+&nbsp;
+&nbsp;    @ManyToOne(fetch = FetchType.LAZY)
+&nbsp;    @JoinColumn(name = &quot;usuario_id&quot;) // Clave foránea física en español
+&nbsp;    private User user;
+&nbsp;
+&nbsp;    @ManyToMany
+&nbsp;    @JoinTable(
+&nbsp;            name = &quot;carrito_productos&quot;, // Tabla intermedia física
+&nbsp;            joinColumns = @JoinColumn(name = &quot;carrito_id&quot;),
+&nbsp;            inverseJoinColumns = @JoinColumn(name = &quot;producto_id&quot;)
+&nbsp;    )
+&nbsp;    private List&lt;Product&gt; products;
+&nbsp;
+&nbsp;    private String status;
+&nbsp;
+&nbsp;    private BigDecimal totalAmount;
+&nbsp;
+&nbsp;    @Version
+&nbsp;    private Long version;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-14 07:28</div>
+</div>
+</body>
+</html>

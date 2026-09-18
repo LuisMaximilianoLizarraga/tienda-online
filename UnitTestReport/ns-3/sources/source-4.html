@@ -1,0 +1,142 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ErrorMessageConstants</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.constant</a>
+</div>
+
+<h1>Coverage Summary for Class: ErrorMessageConstants (com.lucho.tienda.constant)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ErrorMessageConstants</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.constant;
+&nbsp;
+&nbsp;public final class ErrorMessageConstants {
+&nbsp;
+&nbsp;    // Compact constructor to prevent instantiation
+<b class="fc">&nbsp;    public ErrorMessageConstants() {</b>
+<b class="fc">&nbsp;        throw new UnsupportedOperationException(&quot;This is a utility class and cannot be instantiated&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // --- Domain Error Messages ---
+&nbsp;    public static final String USER_ID_REQUIRED = &quot;User ID is required&quot;;
+&nbsp;    public static final String USER_NOT_FOUND = &quot;User not found with ID: %d&quot;;
+&nbsp;    public static final String USER_NOT_FOUND_USERNAME = &quot;User not found: %s&quot;;
+&nbsp;
+&nbsp;    public static final String CART_ID_REQUIRED = &quot;Cart ID is required&quot;;
+&nbsp;    public static final String CART_NOT_FOUND = &quot;Cart not found with ID: %d&quot;;
+&nbsp;
+&nbsp;    public static final String PRODUCT_CODE_REQUIRED = &quot;Product code is required&quot;;
+&nbsp;    public static final String PRODUCT_NOT_FOUND = &quot;Product not found with code: %s&quot;;
+&nbsp;
+&nbsp;    public static final String INVALID_PRODUCT_REQUEST = &quot;The request must include a valid cartId and productCode&quot;;
+&nbsp;
+&nbsp;    // --- Global Exception Handler Error Messages ---
+&nbsp;    public static final String VALIDATION_FAILED_PREFIX = &quot;Validation failed: %s&quot;;
+&nbsp;    public static final String AUTHENTICATION_FAILED_PREFIX = &quot;Authentication failed: %s&quot;;
+&nbsp;    public static final String ACCESS_DENIED_MESSAGE = &quot;Access denied: You do not have permission to perform this action.&quot;;
+&nbsp;    public static final String METHOD_NOT_SUPPORTED_TEMPLATE = &quot;Request method &#39;%s&#39; is not supported for this endpoint.&quot;;
+&nbsp;    public static final String CONCURRENCY_CONFLICT_MESSAGE = &quot;The resource was modified by another transaction. Please try again.&quot;;
+&nbsp;    public static final String INTERNAL_SERVER_ERROR_MESSAGE = &quot;An internal server error occurred. Contact the administrator.&quot;;
+&nbsp;    public static final String INVALID_OR_MISSING_TOKEN = &quot;Token de autorización inválido o ausente&quot;;
+&nbsp;    public static final String CART_ALREADY_PROCESSING = &quot;The cart is currently being processed. Please wait.&quot;;
+&nbsp;    public static final String CART_ALREADY_PROCESSED = &quot;The cart has already been processed and cannot be modified.&quot;;
+&nbsp;    public static final String CART_INVALID_STATE = &quot;The cart is in an invalid state for checkout.&quot;;
+&nbsp;    public static final String CART_FAILED_PROCESSING = &quot;Cart processing failed and cannot be processed.&quot;;
+&nbsp;    public static final String CART_CANCELLED_PROCESSING = &quot;Cart checkout was cancelled due to lack of stock.&quot;;
+&nbsp;    public static final String OUT_OF_STOCK = &quot;Out of stock for product: %s&quot;;
+&nbsp;    public static final String CANNOT_MODIFY_CART_STATUS = &quot;Cannot modify cart in status: %s&quot;;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

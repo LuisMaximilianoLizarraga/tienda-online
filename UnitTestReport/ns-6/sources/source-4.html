@@ -1,0 +1,141 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CustomAsyncExceptionHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.exception</a>
+</div>
+
+<h1>Coverage Summary for Class: CustomAsyncExceptionHandler (com.lucho.tienda.exception)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CustomAsyncExceptionHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.exception;
+&nbsp;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+&nbsp;
+&nbsp;import java.lang.reflect.Method;
+&nbsp;
+<b class="nc">&nbsp;@Slf4j</b>
+<b class="nc">&nbsp;public class CustomAsyncExceptionHandler implements AsyncUncaughtExceptionHandler {</b>
+&nbsp;
+&nbsp;    private static final String LOG_EXCEPTION_MSG = &quot;Exception message - {}&quot;;
+&nbsp;    private static final String LOG_METHOD_NAME = &quot;Method name - {}&quot;;
+&nbsp;    private static final String LOG_PARAM_VALUE = &quot;Parameter value - {}&quot;;
+&nbsp;    private static final String LOG_UNEXPECTED_ERROR = &quot;Unexpected error occurred in async processing&quot;;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void handleUncaughtException(Throwable throwable, Method method, Object... params) {
+<b class="nc">&nbsp;        log.error(LOG_EXCEPTION_MSG, throwable.getMessage());</b>
+<b class="nc">&nbsp;        log.error(LOG_METHOD_NAME, method.getName());</b>
+<b class="nc">&nbsp;        for (Object param : params) {</b>
+<b class="nc">&nbsp;            log.error(LOG_PARAM_VALUE, param);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        log.error(LOG_UNEXPECTED_ERROR, throwable);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

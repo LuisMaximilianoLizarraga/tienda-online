@@ -1,0 +1,227 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CartController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: CartController (com.lucho.tienda.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CartController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/19)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.controller;
+&nbsp;
+&nbsp;import com.lucho.tienda.annotation.ApiStandardErrorResponses;
+&nbsp;import com.lucho.tienda.constant.ApiEndpointConstants;
+&nbsp;import com.lucho.tienda.constant.ApiFieldConstants;
+&nbsp;import com.lucho.tienda.constant.MessageConstants;
+&nbsp;import com.lucho.tienda.constant.OpenApiMessageConstants;
+&nbsp;import com.lucho.tienda.dto.*;
+&nbsp;import com.lucho.tienda.dto.*;
+&nbsp;import com.lucho.tienda.model.Cart;
+&nbsp;import com.lucho.tienda.model.CartItem;
+&nbsp;import com.lucho.tienda.security.JwtUtils;
+&nbsp;import com.lucho.tienda.service.CartService;
+&nbsp;import io.swagger.v3.oas.annotations.Operation;
+&nbsp;import io.swagger.v3.oas.annotations.responses.ApiResponse;
+&nbsp;import io.swagger.v3.oas.annotations.responses.ApiResponses;
+&nbsp;import io.swagger.v3.oas.annotations.tags.Tag;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.http.HttpHeaders;
+&nbsp;import org.springframework.http.HttpStatus;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.validation.annotation.Validated;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import static com.lucho.tienda.constant.ApiEndpointConstants.*;
+&nbsp;import static com.lucho.tienda.constant.ApiFieldConstants.*;
+&nbsp;import static com.lucho.tienda.constant.OpenApiMessageConstants.*;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Set;
+&nbsp;
+&nbsp;@RestController
+&nbsp;@RequestMapping(ApiEndpointConstants.ENDPOINT_CARTS)
+&nbsp;@RequiredArgsConstructor
+&nbsp;@ApiStandardErrorResponses
+&nbsp;@Tag(name = &quot;Cart Controller&quot;, description = OpenApiMessageConstants.TAG_CART_DESC)
+&nbsp;public class CartController {
+&nbsp;
+&nbsp;    private final CartService cartService;
+&nbsp;    private final JwtUtils jwtUtils;
+&nbsp;
+&nbsp;    @Operation(summary = OP_CREATE_CART, description = OP_CREATE_CART_DESC)
+&nbsp;    @ApiResponses({
+&nbsp;            @ApiResponse(responseCode = &quot;201&quot;, description = CREATED)
+&nbsp;    })
+&nbsp;    @PostMapping
+&nbsp;    public ResponseEntity&lt;CartResponse&gt; createCart(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+<b class="fc">&nbsp;        Long userId = jwtUtils.extractUserIdFromHeader(authHeader);</b>
+<b class="fc">&nbsp;        Cart cart = cartService.createCart(userId);</b>
+<b class="fc">&nbsp;        return ResponseEntity.status(HttpStatus.CREATED).body(CartResponse.fromEntity(cart));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Operation(summary = OP_ADD_PRODUCT)
+&nbsp;    @ApiResponses({
+&nbsp;            @ApiResponse(responseCode = &quot;200&quot;, description = OK_PRODUCT),
+&nbsp;            @ApiResponse(responseCode = &quot;409&quot;, description = CONFLICT)
+&nbsp;    })
+&nbsp;    @PostMapping(SUB_ENDPOINT_CART_PRODUCTS)
+&nbsp;    public ResponseEntity&lt;CartResponse&gt; addProduct(
+&nbsp;            @PathVariable(PARAM_CART_ID) Long cartId,
+&nbsp;            @RequestBody @Validated AddProductRequest request) {
+&nbsp;
+<b class="fc">&nbsp;        ProductOperationRequest serviceRequest = new ProductOperationRequest(cartId, request.productCode());</b>
+<b class="fc">&nbsp;        Cart cart = cartService.addProduct(serviceRequest);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(CartResponse.fromEntity(cart));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Operation(summary = OP_REMOVE_PRODUCT)
+&nbsp;    @ApiResponses({
+&nbsp;            @ApiResponse(responseCode = &quot;200&quot;, description = OK_PRODUCT),
+&nbsp;            @ApiResponse(responseCode = &quot;409&quot;, description = CONFLICT)
+&nbsp;    })
+&nbsp;    @DeleteMapping(SUB_ENDPOINT_REMOVE_PRODUCT)
+&nbsp;    public ResponseEntity&lt;CartResponse&gt; removeProduct(
+&nbsp;            @PathVariable(PARAM_CART_ID) Long cartId,
+&nbsp;            @PathVariable(FIELD_PRODUCT_CODE) String productCode) {
+&nbsp;
+<b class="fc">&nbsp;        ProductOperationRequest request = new ProductOperationRequest(cartId, productCode);</b>
+<b class="fc">&nbsp;        Cart cart = cartService.removeProduct(request);</b>
+&nbsp;
+<b class="fc">&nbsp;        return ResponseEntity.ok(CartResponse.fromEntity(cart));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(SUB_ENDPOINT_CART_PRODUCTS)
+&nbsp;    public ResponseEntity&lt;List&lt;CartItemResponse&gt;&gt; getCartProducts(@PathVariable(PARAM_CART_ID) Long cartId) {
+<b class="fc">&nbsp;        List&lt;CartItem&gt; items = cartService.getCartProducts(cartId);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(CartItemResponse.fromEntityList(items));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Operation(summary = OP_GET_USER_CARTS)
+&nbsp;    @ApiResponses({
+&nbsp;            @ApiResponse(responseCode = &quot;200&quot;, description = OK_LIST)
+&nbsp;    })
+&nbsp;    @GetMapping
+&nbsp;    public ResponseEntity&lt;List&lt;CartResponse&gt;&gt; getUserCarts(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+<b class="fc">&nbsp;        Long userId = jwtUtils.extractUserIdFromHeader(authHeader);</b>
+<b class="fc">&nbsp;        List&lt;Cart&gt; carts = cartService.getUserCarts(userId);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(CartResponse.fromEntityList(carts));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Operation(summary = OP_PROCESS_ORDER)
+&nbsp;    @ApiResponses({
+&nbsp;            @ApiResponse(responseCode = &quot;202&quot;, description = ACCEPTED),
+&nbsp;            @ApiResponse(responseCode = &quot;409&quot;, description = CONFLICT)
+&nbsp;    })
+&nbsp;    @PostMapping(SUB_ENDPOINT_PROCESS_ORDER)
+&nbsp;    public ResponseEntity&lt;AsyncOrderResponse&gt; processOrder(@PathVariable(PARAM_CART_ID) Long cartId) {
+<b class="fc">&nbsp;        cartService.initiateCheckout(cartId);</b>
+<b class="fc">&nbsp;        AsyncOrderResponse response = new AsyncOrderResponse(MessageConstants.PROCESSING_ORDER);</b>
+<b class="fc">&nbsp;        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Operation(summary = OP_GET_CART)
+&nbsp;    @ApiResponses({
+&nbsp;            @ApiResponse(responseCode = &quot;200&quot;, description = OK_CART)
+&nbsp;    })
+&nbsp;    @GetMapping(SUB_ENDPOINT_GET_CART)
+&nbsp;    public ResponseEntity&lt;CartResponse&gt; getCart(@PathVariable(PARAM_CART_ID) Long cartId) {
+<b class="fc">&nbsp;        Cart cart = cartService.getCartById(cartId);</b>
+<b class="fc">&nbsp;        return ResponseEntity.ok(CartResponse.fromEntity(cart));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

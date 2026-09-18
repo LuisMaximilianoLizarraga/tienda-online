@@ -1,0 +1,177 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SecurityConfig</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.security</a>
+</div>
+
+<h1>Coverage Summary for Class: SecurityConfig (com.lucho.tienda.security)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SecurityConfig</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">SecurityConfig$$SpringCGLIB$$0</td>
+  </tr>
+  <tr>
+    <td class="name">SecurityConfig$$SpringCGLIB$$FastClass$$0</td>
+  </tr>
+  <tr>
+    <td class="name">SecurityConfig$$SpringCGLIB$$FastClass$$1</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.security;
+&nbsp;
+&nbsp;import com.lucho.tienda.constant.ApiEndpointConstants;
+&nbsp;import com.lucho.tienda.exception.CustomAccessDeniedHandler;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+&nbsp;import org.springframework.context.annotation.Bean;
+&nbsp;import org.springframework.context.annotation.Configuration;
+&nbsp;import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+&nbsp;import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+&nbsp;import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+&nbsp;import org.springframework.security.config.http.SessionCreationPolicy;
+&nbsp;import org.springframework.security.web.SecurityFilterChain;
+&nbsp;import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+&nbsp;
+&nbsp;@Configuration
+&nbsp;@EnableWebSecurity
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class SecurityConfig {
+&nbsp;
+&nbsp;    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+&nbsp;    @Autowired
+&nbsp;    private CustomAccessDeniedHandler accessDeniedHandler;
+&nbsp;
+&nbsp;    @Bean
+&nbsp;    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+<b class="fc">&nbsp;        http</b>
+&nbsp;                // 1. Disable CSRF protection (Safe and recommended for Stateless REST APIs using JWT)
+<b class="fc">&nbsp;                .csrf(AbstractHttpConfigurer::disable)</b>
+&nbsp;
+&nbsp;                // 2. Enable frame options (Required for the H2 Console UI to render correctly)
+<b class="fc">&nbsp;                .headers(headers -&gt; headers.frameOptions(frame -&gt; frame.sameOrigin()))</b>
+&nbsp;
+&nbsp;                // 3. Configure endpoint authorization rules
+<b class="fc">&nbsp;                .authorizeHttpRequests(auth -&gt; auth</b>
+&nbsp;                        // Explicitly allow access to the H2 Console
+<b class="fc">&nbsp;                        .requestMatchers(PathRequest.toH2Console()).permitAll()</b>
+&nbsp;
+&nbsp;                        // Allow access to favicon to prevent unnecessary 403 errors in server logs
+<b class="fc">&nbsp;                        .requestMatchers(&quot;/favicon.ico&quot;).permitAll()</b>
+&nbsp;
+&nbsp;                        // Allow access to predefined public endpoints (e.g., Auth, Swagger, Actuator)
+<b class="fc">&nbsp;                        .requestMatchers(ApiEndpointConstants.PUBLIC_PATHS).permitAll()</b>
+&nbsp;
+&nbsp;                        // Require authentication for any other request
+<b class="fc">&nbsp;                        .anyRequest().authenticated()</b>
+&nbsp;                )
+&nbsp;
+&nbsp;        // 4. IMPORTANT: Temporarily comment out this line if the H2 Console login fails or loops.
+&nbsp;        // H2 Console relies on sessions, which conflicts with a strict STATELESS policy.
+<b class="fc">&nbsp;        .sessionManagement(session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</b>
+<b class="fc">&nbsp;                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);</b>
+&nbsp;
+<b class="fc">&nbsp;        return http.build();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>

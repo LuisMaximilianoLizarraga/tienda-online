@@ -1,0 +1,217 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > OrderProcessingWorker</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.lucho.tienda.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: OrderProcessingWorker (com.lucho.tienda.service.impl)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">OrderProcessingWorker</td>
+<td class="coverageStat">
+  <span class="percent">
+    66,7%
+  </span>
+  <span class="absValue">
+    (2/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96%
+  </span>
+  <span class="absValue">
+    (24/25)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">OrderProcessingWorker$$SpringCGLIB$$0</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    66,7%
+  </span>
+  <span class="absValue">
+    (2/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96%
+  </span>
+  <span class="absValue">
+    (24/25)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.lucho.tienda.service.impl;
+&nbsp;
+&nbsp;import com.lucho.tienda.constant.ErrorMessageConstants;
+&nbsp;import com.lucho.tienda.exception.OutOfStockException;
+&nbsp;import com.lucho.tienda.exception.ResourceNotFoundException;
+&nbsp;import com.lucho.tienda.model.Cart;
+&nbsp;import com.lucho.tienda.model.CartItem;
+&nbsp;import com.lucho.tienda.model.enums.CartStatus;
+&nbsp;import com.lucho.tienda.repository.CartRepository;
+&nbsp;import com.lucho.tienda.service.StockService;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.hibernate.StaleObjectStateException;
+&nbsp;import org.springframework.beans.factory.annotation.Value;
+&nbsp;import org.springframework.orm.ObjectOptimisticLockingFailureException;
+&nbsp;import org.springframework.scheduling.annotation.Async;
+&nbsp;import org.springframework.stereotype.Component;
+&nbsp;import org.springframework.transaction.annotation.Transactional;
+&nbsp;
+&nbsp;import java.math.BigDecimal;
+&nbsp;
+<b class="fc">&nbsp;@Slf4j</b>
+&nbsp;@Component
+&nbsp;@RequiredArgsConstructor
+&nbsp;public class OrderProcessingWorker {
+&nbsp;
+&nbsp;    private final CartRepository cartRepository;
+&nbsp;    private final CartErrorService cartErrorService;
+&nbsp;    private final StockService stockService;
+&nbsp;
+&nbsp;    @Value(&quot;${cart.processing.sleep-ms:0}&quot;)
+&nbsp;    private long sleepMs;
+&nbsp;
+&nbsp;    @Async(&quot;asyncExecutor&quot;)
+&nbsp;    @Transactional
+&nbsp;    public void processOrderAsync(Long cartId) {
+<b class="fc">&nbsp;        log.info(&quot;Starting asynchronous order processing for cart ID: {}&quot;, cartId);</b>
+&nbsp;
+&nbsp;        try {
+<b class="fc">&nbsp;            if (sleepMs &gt; 0) {</b>
+<b class="fc">&nbsp;                Thread.sleep(sleepMs);</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            Cart cart = cartRepository.findCartById(cartId)</b>
+<b class="fc">&nbsp;                    .orElseThrow(() -&gt; new ResourceNotFoundException(</b>
+<b class="nc">&nbsp;                            String.format(ErrorMessageConstants.CART_NOT_FOUND, cartId)));</b>
+&nbsp;
+<b class="fc">&nbsp;            if (cart.getStatus() != CartStatus.PROCESSING) {</b>
+<b class="fc">&nbsp;                log.warn(&quot;Async execution skipped. Cart ID {} is in state {} instead of PROCESSING.&quot;, cartId, cart.getStatus());</b>
+&nbsp;                return;
+&nbsp;            }
+&nbsp;            // 1. Delegate atomic stock deduction and price/discount freezing
+<b class="fc">&nbsp;            stockService.deductStockForCart(cart);</b>
+&nbsp;
+&nbsp;            // 2. Calculate accumulated total amount using CartItem business logic
+<b class="fc">&nbsp;            BigDecimal accumulatedTotal = cart.getItems().stream()</b>
+<b class="fc">&nbsp;                    .map(CartItem::getLineTotal)</b>
+<b class="fc">&nbsp;                    .reduce(BigDecimal.ZERO, BigDecimal::add);</b>
+&nbsp;
+&nbsp;            // 3. Update total amount and set cart status to PROCESSED
+<b class="fc">&nbsp;            cart.setTotalAmount(accumulatedTotal);</b>
+<b class="fc">&nbsp;            cart.setStatus(CartStatus.PROCESSED);</b>
+&nbsp;
+<b class="fc">&nbsp;            cartRepository.save(cart);</b>
+<b class="fc">&nbsp;            log.info(&quot;Successfully processed order for cart ID: {}&quot;, cartId);</b>
+&nbsp;
+&nbsp;        } catch (OutOfStockException e) {
+<b class="fc">&nbsp;            log.warn(&quot;Order processing cancelled for cart ID: {}. Reason: {}&quot;, cartId, e.getMessage());</b>
+<b class="fc">&nbsp;            cartErrorService.markCartAsCancelled(cartId);</b>
+&nbsp;        } catch (ObjectOptimisticLockingFailureException | StaleObjectStateException e) {
+&nbsp;            // Silently swallows version conflicts
+<b class="fc">&nbsp;            log.warn(&quot;Concurrent modification detected for cart ID: {}. Another thread processed it.&quot;, cartId);</b>
+&nbsp;        }catch (InterruptedException e) {
+<b class="fc">&nbsp;            Thread.currentThread().interrupt();</b>
+<b class="fc">&nbsp;            log.error(&quot;Asynchronous processing interrupted for cart ID: {}&quot;, cartId, e);</b>
+<b class="fc">&nbsp;            cartErrorService.markCartAsFailed(cartId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="fc">&nbsp;            log.error(&quot;Error occurred while processing async order for cart ID: {}&quot;, cartId, e);</b>
+<b class="fc">&nbsp;            cartErrorService.markCartAsFailed(cartId);</b>
+&nbsp;            throw e;
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-09-18 12:15</div>
+</div>
+</body>
+</html>
